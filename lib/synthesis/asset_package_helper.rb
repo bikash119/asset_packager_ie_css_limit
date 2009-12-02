@@ -21,7 +21,18 @@ module Synthesis
       sources = (should_merge? ? 
         AssetPackage.targets_from_sources("javascripts", sources) : 
         AssetPackage.sources_from_targets("javascripts", sources))
-        
+      
+      sources.collect {|source| javascript_include_tag(source, options) }.join("\n")
+    end
+
+    def stylesheet_link_merged(*sources)
+      options = sources.last.is_a?(Hash) ? sources.pop.stringify_keys : { }
+
+      sources.collect!{|s| s.to_s}
+      sources = (should_merge? ? 
+        AssetPackage.targets_from_sources("stylesheets", sources) : 
+        AssetPackage.sources_from_targets("stylesheets", sources))
+
       if sources.size > IE_STYLESHEET_LIMIT
         # need to use the import method so that IE doesn't just sliently drop styles
         # after the limit has been reached
@@ -40,18 +51,6 @@ module Synthesis
       else
         return sources.collect { |source| stylesheet_link_tag(source, options) }.join("\n")    
       end
-
-    end
-
-    def stylesheet_link_merged(*sources)
-      options = sources.last.is_a?(Hash) ? sources.pop.stringify_keys : { }
-
-      sources.collect!{|s| s.to_s}
-      sources = (should_merge? ? 
-        AssetPackage.targets_from_sources("stylesheets", sources) : 
-        AssetPackage.sources_from_targets("stylesheets", sources))
-
-      sources.collect { |source| stylesheet_link_tag(source, options) }.join("\n")    
     end
 
   end
